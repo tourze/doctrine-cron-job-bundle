@@ -1,1 +1,0 @@
-# doctrine-cron-job-bundle
