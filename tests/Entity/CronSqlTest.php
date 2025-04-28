@@ -34,7 +34,7 @@ class CronSqlTest extends TestCase
         $this->assertTrue($cronSql->isValid());
 
         // 测试ID
-        $this->assertEquals('0', $cronSql->getId());
+        $this->assertEquals(null, $cronSql->getId());
 
         // 测试创建人
         $cronSql->setCreatedBy('admin');
