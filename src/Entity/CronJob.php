@@ -10,60 +10,32 @@ use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\DoctrineTrackBundle\Attribute\TrackColumn;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\DoctrineUserBundle\Attribute\UpdatedByColumn;
-use Tourze\EasyAdmin\Attribute\Action\Creatable;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Action\Editable;
-use Tourze\EasyAdmin\Attribute\Column\BoolColumn;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Field\FormField;
-use Tourze\EasyAdmin\Attribute\Filter\Keyword;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 
-#[Deletable]
-#[Editable]
-#[Creatable]
-#[AsPermission(title: '定时任务')]
 #[ORM\Table(name: 'cron_job', options: ['comment' => '定时任务'])]
 #[ORM\Entity(repositoryClass: CronJobRepository::class)]
 class CronJob implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
 
-    #[FormField]
-    #[Keyword]
-    #[ListColumn]
     #[ORM\Column(name: 'name', type: Types::STRING, length: 191, unique: true, options: ['comment' => '名称'])]
     private string $name;
 
-    #[FormField]
-    #[ListColumn]
     #[ORM\Column(name: 'command', type: Types::STRING, length: 1024, options: ['comment' => '命令'])]
     private string $command;
 
-    #[FormField]
-    #[ListColumn]
     #[ORM\Column(name: 'schedule', type: Types::STRING, length: 191, options: ['comment' => '计划'])]
     private string $schedule;
 
-    #[FormField]
-    #[Keyword]
-    #[ListColumn]
     #[ORM\Column(name: 'description', type: Types::TEXT, nullable: true, options: ['comment' => '描述'])]
     private ?string $description = null;
 
-    #[BoolColumn]
     #[IndexColumn]
     #[TrackColumn]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '有效', 'default' => 0])]
-    #[ListColumn(order: 97)]
-    #[FormField(order: 97)]
     private ?bool $valid = false;
 
     #[CreatedByColumn]
