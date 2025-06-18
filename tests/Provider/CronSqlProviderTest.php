@@ -46,7 +46,6 @@ class CronSqlProviderTest extends TestCase
 
         // 验证选项
         $options = $commands[0]->getOptions();
-        $this->assertIsArray($options);
         $this->assertArrayHasKey('sql', $options);
         $this->assertEquals('SELECT * FROM users', $options['sql']);
     }
