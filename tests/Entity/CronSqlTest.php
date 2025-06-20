@@ -45,12 +45,12 @@ class CronSqlTest extends TestCase
         $this->assertEquals('admin', $cronSql->getUpdatedBy());
 
         // 测试创建时间
-        $time = new \DateTime();
+        $time = new \DateTimeImmutable();
         $cronSql->setCreateTime($time);
         $this->assertSame($time, $cronSql->getCreateTime());
 
         // 测试更新时间
-        $time = new \DateTime();
+        $time = new \DateTimeImmutable();
         $cronSql->setUpdateTime($time);
         $this->assertSame($time, $cronSql->getUpdateTime());
     }

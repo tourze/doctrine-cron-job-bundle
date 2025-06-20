@@ -40,12 +40,12 @@ class CronJobTest extends TestCase
         $this->assertEquals('admin', $job->getUpdatedBy());
 
         // 测试创建时间
-        $time = new \DateTime();
+        $time = new \DateTimeImmutable();
         $job->setCreateTime($time);
         $this->assertSame($time, $job->getCreateTime());
 
         // 测试更新时间
-        $time = new \DateTime();
+        $time = new \DateTimeImmutable();
         $job->setUpdateTime($time);
         $this->assertSame($time, $job->getUpdateTime());
     }
