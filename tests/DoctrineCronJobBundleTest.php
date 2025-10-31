@@ -1,30 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\DoctrineCronJobBundle\Tests;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\DoctrineCronJobBundle\DoctrineCronJobBundle;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractBundleTestCase;
 
-class DoctrineCronJobBundleTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(DoctrineCronJobBundle::class)]
+#[RunTestsInSeparateProcesses]
+final class DoctrineCronJobBundleTest extends AbstractBundleTestCase
 {
-    public function testBundleInstance(): void
-    {
-        $bundle = new DoctrineCronJobBundle();
-
-        // 验证继承自 Bundle 类
-        $this->assertInstanceOf(Bundle::class, $bundle);
-    }
-
-    public function testGetPath(): void
-    {
-        $bundle = new DoctrineCronJobBundle();
-        $bundlePath = $bundle->getPath();
-
-        // 使用反射获取实际的Bundle类路径
-        $reflector = new \ReflectionClass(DoctrineCronJobBundle::class);
-        $expectedPath = dirname($reflector->getFileName());
-
-        $this->assertEquals($expectedPath, $bundlePath);
-    }
 }

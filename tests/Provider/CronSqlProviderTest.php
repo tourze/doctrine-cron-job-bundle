@@ -2,14 +2,26 @@
 
 namespace Tourze\DoctrineCronJobBundle\Tests\Provider;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\DoctrineCronJobBundle\Entity\CronSql;
 use Tourze\DoctrineCronJobBundle\Provider\CronSqlProvider;
 use Tourze\DoctrineCronJobBundle\Repository\CronSqlRepository;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use Tourze\Symfony\CronJob\Request\CommandRequest;
 
-class CronSqlProviderTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(CronSqlProvider::class)]
+#[RunTestsInSeparateProcesses]
+final class CronSqlProviderTest extends AbstractIntegrationTestCase
 {
+    protected function onSetUp(): void
+    {
+        // 测试使用Mock对象
+    }
+
     public function testGetCommands(): void
     {
         // 创建有效的SQL任务
@@ -26,15 +38,18 @@ class CronSqlProviderTest extends TestCase
         $invalidSqlJob->setCronExpression('0 0 * * *');
         $invalidSqlJob->setValid(false);
 
-        // 模拟Repository
         $repository = $this->createMock(CronSqlRepository::class);
         $repository->expects($this->once())
             ->method('findBy')
             ->with(['valid' => true])
-            ->willReturn([$validSqlJob]);
+            ->willReturn([$validSqlJob])
+        ;
 
-        // 创建Provider
-        $provider = new CronSqlProvider($repository);
+        // 将Mock注入到容器中
+        self::getContainer()->set(CronSqlRepository::class, $repository);
+
+        // 从容器获取Provider实例
+        $provider = self::getService(CronSqlProvider::class);
 
         // 获取命令并验证
         $commands = iterator_to_array($provider->getCommands());
@@ -52,15 +67,18 @@ class CronSqlProviderTest extends TestCase
 
     public function testEmptyCommands(): void
     {
-        // 模拟Repository返回空数组
         $repository = $this->createMock(CronSqlRepository::class);
         $repository->expects($this->once())
             ->method('findBy')
             ->with(['valid' => true])
-            ->willReturn([]);
+            ->willReturn([])
+        ;
 
-        // 创建Provider
-        $provider = new CronSqlProvider($repository);
+        // 将Mock注入到容器中
+        self::getContainer()->set(CronSqlRepository::class, $repository);
+
+        // 从容器获取Provider实例
+        $provider = self::getService(CronSqlProvider::class);
 
         // 获取命令并验证为空
         $commands = iterator_to_array($provider->getCommands());

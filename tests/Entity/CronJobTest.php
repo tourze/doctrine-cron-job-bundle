@@ -2,52 +2,35 @@
 
 namespace Tourze\DoctrineCronJobBundle\Tests\Entity;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\DoctrineCronJobBundle\Entity\CronJob;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
-class CronJobTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(CronJob::class)]
+final class CronJobTest extends AbstractEntityTestCase
 {
-    public function testEntityGettersAndSetters(): void
+    protected function createEntity(): object
     {
-        $job = new CronJob();
+        return new CronJob();
+    }
 
-        // 测试名称
-        $job->setName('test-job');
-        $this->assertEquals('test-job', $job->getName());
-
-        // 测试命令
-        $job->setCommand('php bin/console app:command');
-        $this->assertEquals('php bin/console app:command', $job->getCommand());
-
-        // 测试计划表达式
-        $job->setSchedule('* * * * *');
-        $this->assertEquals('* * * * *', $job->getSchedule());
-
-        // 测试描述
-        $job->setDescription('Test description');
-        $this->assertEquals('Test description', $job->getDescription());
-
-        // 测试有效状态
-        $job->setValid(true);
-        $this->assertTrue($job->isValid());
-
-        // 测试创建人
-        $job->setCreatedBy('admin');
-        $this->assertEquals('admin', $job->getCreatedBy());
-
-        // 测试更新人
-        $job->setUpdatedBy('admin');
-        $this->assertEquals('admin', $job->getUpdatedBy());
-
-        // 测试创建时间
-        $time = new \DateTimeImmutable();
-        $job->setCreateTime($time);
-        $this->assertSame($time, $job->getCreateTime());
-
-        // 测试更新时间
-        $time = new \DateTimeImmutable();
-        $job->setUpdateTime($time);
-        $this->assertSame($time, $job->getUpdateTime());
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        yield 'name' => ['name', 'test-job'];
+        yield 'command' => ['command', 'php bin/console app:command'];
+        yield 'schedule' => ['schedule', '* * * * *'];
+        yield 'description' => ['description', 'Test description'];
+        yield 'valid' => ['valid', true];
+        yield 'createdBy' => ['createdBy', 'admin'];
+        yield 'updatedBy' => ['updatedBy', 'admin'];
+        yield 'createTime' => ['createTime', new \DateTimeImmutable()];
+        yield 'updateTime' => ['updateTime', new \DateTimeImmutable()];
     }
 
     public function testToString(): void
@@ -55,7 +38,7 @@ class CronJobTest extends TestCase
         $job = new CronJob();
 
         // 没有ID时应返回空字符串
-        $this->assertEquals('', (string)$job);
+        $this->assertEquals('', (string) $job);
 
         // 设置名称后应返回名称
         $job->setName('test-job');
@@ -66,6 +49,6 @@ class CronJobTest extends TestCase
         $property->setAccessible(true);
         $property->setValue($job, 1);
 
-        $this->assertEquals('test-job', (string)$job);
+        $this->assertEquals('test-job', (string) $job);
     }
 }

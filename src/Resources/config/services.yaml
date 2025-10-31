@@ -4,7 +4,18 @@ services:
     autowire: true      # Automatically injects dependencies in your services.
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-  Tourze\DoctrineCronJobBundle\Provider\:
-    resource: '../../Provider/'
   Tourze\DoctrineCronJobBundle\Repository\:
     resource: '../../Repository/'
+
+  # Explicitly configure providers to avoid autoconfiguration conflicts
+  Tourze\DoctrineCronJobBundle\Provider\CronSqlProvider:
+    arguments:
+      - '@Tourze\DoctrineCronJobBundle\Repository\CronSqlRepository'
+    tags:
+      - { name: 'cron-command-provider' }
+
+  Tourze\DoctrineCronJobBundle\Provider\DoctrineProvider:
+    arguments:
+      - '@Tourze\DoctrineCronJobBundle\Repository\CronJobRepository'
+    tags:
+      - { name: 'cron-command-provider' }

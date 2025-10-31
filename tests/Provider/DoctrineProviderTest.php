@@ -2,14 +2,26 @@
 
 namespace Tourze\DoctrineCronJobBundle\Tests\Provider;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\DoctrineCronJobBundle\Entity\CronJob;
 use Tourze\DoctrineCronJobBundle\Provider\DoctrineProvider;
 use Tourze\DoctrineCronJobBundle\Repository\CronJobRepository;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use Tourze\Symfony\CronJob\Request\CommandRequest;
 
-class DoctrineProviderTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(DoctrineProvider::class)]
+#[RunTestsInSeparateProcesses]
+final class DoctrineProviderTest extends AbstractIntegrationTestCase
 {
+    protected function onSetUp(): void
+    {
+        // 测试使用Mock对象
+    }
+
     public function testGetCommands(): void
     {
         // 创建有效的任务
@@ -26,15 +38,18 @@ class DoctrineProviderTest extends TestCase
         $invalidJob->setSchedule('*/10 * * * *');
         $invalidJob->setValid(false);
 
-        // 模拟Repository
         $repository = $this->createMock(CronJobRepository::class);
         $repository->expects($this->once())
             ->method('findBy')
             ->with(['valid' => true])
-            ->willReturn([$validJob]);
+            ->willReturn([$validJob])
+        ;
 
-        // 创建Provider
-        $provider = new DoctrineProvider($repository);
+        // 将Mock注入到容器中
+        self::getContainer()->set(CronJobRepository::class, $repository);
+
+        // 从容器获取Provider实例
+        $provider = self::getService(DoctrineProvider::class);
 
         // 获取命令并验证
         $commands = iterator_to_array($provider->getCommands());
@@ -47,15 +62,18 @@ class DoctrineProviderTest extends TestCase
 
     public function testEmptyCommands(): void
     {
-        // 模拟Repository返回空数组
         $repository = $this->createMock(CronJobRepository::class);
         $repository->expects($this->once())
             ->method('findBy')
             ->with(['valid' => true])
-            ->willReturn([]);
+            ->willReturn([])
+        ;
 
-        // 创建Provider
-        $provider = new DoctrineProvider($repository);
+        // 将Mock注入到容器中
+        self::getContainer()->set(CronJobRepository::class, $repository);
+
+        // 从容器获取Provider实例
+        $provider = self::getService(DoctrineProvider::class);
 
         // 获取命令并验证为空
         $commands = iterator_to_array($provider->getCommands());

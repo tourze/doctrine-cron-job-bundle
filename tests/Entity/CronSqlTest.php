@@ -2,56 +2,45 @@
 
 namespace Tourze\DoctrineCronJobBundle\Tests\Entity;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\DoctrineCronJobBundle\Entity\CronSql;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
-class CronSqlTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(CronSql::class)]
+final class CronSqlTest extends AbstractEntityTestCase
 {
-    public function testEntityGettersAndSetters(): void
+    protected function createEntity(): object
+    {
+        return new CronSql();
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        yield 'title' => ['title', '测试SQL任务'];
+        yield 'sqlStatement' => ['sqlStatement', 'SELECT * FROM test_table'];
+        yield 'cronExpression' => ['cronExpression', '0 */2 * * *'];
+        yield 'valid' => ['valid', true];
+        yield 'createdBy' => ['createdBy', 'admin'];
+        yield 'updatedBy' => ['updatedBy', 'admin'];
+        yield 'createTime' => ['createTime', new \DateTimeImmutable()];
+        yield 'updateTime' => ['updateTime', new \DateTimeImmutable()];
+    }
+
+    public function testDefaultCronExpression(): void
     {
         $cronSql = new CronSql();
+        $this->assertEquals('* * * * *', $cronSql->getCronExpression());
+    }
 
-        // 测试标题
-        $cronSql->setTitle('测试SQL任务');
-        $this->assertEquals('测试SQL任务', $cronSql->getTitle());
-
-        // 测试SQL语句
-        $sql = 'SELECT * FROM test_table';
-        $cronSql->setSqlStatement($sql);
-        $this->assertEquals($sql, $cronSql->getSqlStatement());
-
-        // 测试Cron表达式
-        $cronExpression = '0 */2 * * *';
-        $cronSql->setCronExpression($cronExpression);
-        $this->assertEquals($cronExpression, $cronSql->getCronExpression());
-
-        // 测试默认Cron表达式
-        $newCronSql = new CronSql();
-        $this->assertEquals('* * * * *', $newCronSql->getCronExpression());
-
-        // 测试有效状态
-        $cronSql->setValid(true);
-        $this->assertTrue($cronSql->isValid());
-
-        // 测试ID
+    public function testId(): void
+    {
+        $cronSql = new CronSql();
         $this->assertEquals(null, $cronSql->getId());
-
-        // 测试创建人
-        $cronSql->setCreatedBy('admin');
-        $this->assertEquals('admin', $cronSql->getCreatedBy());
-
-        // 测试更新人
-        $cronSql->setUpdatedBy('admin');
-        $this->assertEquals('admin', $cronSql->getUpdatedBy());
-
-        // 测试创建时间
-        $time = new \DateTimeImmutable();
-        $cronSql->setCreateTime($time);
-        $this->assertSame($time, $cronSql->getCreateTime());
-
-        // 测试更新时间
-        $time = new \DateTimeImmutable();
-        $cronSql->setUpdateTime($time);
-        $this->assertSame($time, $cronSql->getUpdateTime());
     }
 }

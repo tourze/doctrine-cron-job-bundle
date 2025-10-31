@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\DoctrineCronJobBundle\Provider;
 
 use Tourze\DoctrineCronJobBundle\Repository\CronSqlRepository;
 use Tourze\Symfony\CronJob\Provider\CronCommandProvider;
 use Tourze\Symfony\CronJob\Request\CommandRequest;
 
-class CronSqlProvider implements CronCommandProvider
+readonly class CronSqlProvider implements CronCommandProvider
 {
-    public function __construct(private readonly CronSqlRepository $cronSqlRepository)
+    public function __construct(private CronSqlRepository $cronSqlRepository)
     {
     }
 

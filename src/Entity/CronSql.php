@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\DoctrineCronJobBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineCronJobBundle\Repository\CronSqlRepository;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineSnowflakeBundle\Traits\SnowflakeKeyAware;
@@ -20,64 +23,61 @@ class CronSql implements \Stringable
     use BlameableAware;
 
     #[ORM\Column(length: 255, options: ['comment' => '标题'])]
-    private ?string $title = null;
+    #[Assert\Length(max: 255)]
+    private string $title = '';
 
     #[ORM\Column(type: Types::TEXT, options: ['comment' => 'SQL语句'])]
-    private ?string $sqlStatement = null;
+    #[Assert\Length(max: 65535)]
+    private string $sqlStatement = '';
 
     #[ORM\Column(length: 60, options: ['comment' => '定时表达式'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 60)]
     private string $cronExpression = '* * * * *';
 
     #[IndexColumn]
     #[TrackColumn]
     #[ORM\Column(type: Types::BOOLEAN, nullable: true, options: ['comment' => '有效', 'default' => 0])]
+    #[Assert\Type(type: 'bool')]
     private ?bool $valid = false;
 
     public function __toString(): string
     {
-        if ($this->getId() === null || $this->getId() === '') {
+        if (null === $this->getId() || '' === $this->getId()) {
             return '';
         }
 
-        return $this->title ?? '';
+        return $this->title;
     }
-
 
     public function isValid(): ?bool
     {
         return $this->valid;
     }
 
-    public function setValid(?bool $valid): self
+    public function setValid(?bool $valid): void
     {
         $this->valid = $valid;
-
-        return $this;
     }
 
-
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(string $title): void
     {
         $this->title = $title;
-
-        return $this;
     }
 
-    public function getSqlStatement(): ?string
+    public function getSqlStatement(): string
     {
         return $this->sqlStatement;
     }
 
-    public function setSqlStatement(string $sqlStatement): static
+    public function setSqlStatement(string $sqlStatement): void
     {
         $this->sqlStatement = $sqlStatement;
-
-        return $this;
     }
 
     public function getCronExpression(): string
@@ -85,9 +85,8 @@ class CronSql implements \Stringable
         return $this->cronExpression;
     }
 
-    public function setCronExpression(string $cronExpression): static
+    public function setCronExpression(string $cronExpression): void
     {
         $this->cronExpression = $cronExpression;
-
-        return $this;
-    }}
+    }
+}
