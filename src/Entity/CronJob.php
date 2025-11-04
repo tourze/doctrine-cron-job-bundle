@@ -28,17 +28,17 @@ class CronJob implements \Stringable
     #[ORM\Column(name: 'name', type: Types::STRING, length: 191, unique: true, options: ['comment' => '名称'])]
     #[Assert\NotBlank]
     #[Assert\Length(max: 191)]
-    private string $name;
+    private string $name = '';
 
     #[ORM\Column(name: 'command', type: Types::STRING, length: 1024, options: ['comment' => '命令'])]
     #[Assert\NotBlank]
     #[Assert\Length(max: 1024)]
-    private string $command;
+    private string $command = '';
 
     #[ORM\Column(name: 'schedule', type: Types::STRING, length: 191, options: ['comment' => '计划'])]
     #[Assert\NotBlank]
     #[Assert\Length(max: 191)]
-    private string $schedule;
+    private string $schedule = '';
 
     #[ORM\Column(name: 'description', type: Types::TEXT, nullable: true, options: ['comment' => '描述'])]
     #[Assert\Length(max: 65535)]

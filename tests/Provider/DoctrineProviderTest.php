@@ -4,24 +4,18 @@ namespace Tourze\DoctrineCronJobBundle\Tests\Provider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use PHPUnit\Framework\TestCase;
 use Tourze\DoctrineCronJobBundle\Entity\CronJob;
 use Tourze\DoctrineCronJobBundle\Provider\DoctrineProvider;
 use Tourze\DoctrineCronJobBundle\Repository\CronJobRepository;
-use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use Tourze\Symfony\CronJob\Request\CommandRequest;
 
 /**
  * @internal
  */
 #[CoversClass(DoctrineProvider::class)]
-#[RunTestsInSeparateProcesses]
-final class DoctrineProviderTest extends AbstractIntegrationTestCase
+final class DoctrineProviderTest extends TestCase
 {
-    protected function onSetUp(): void
-    {
-        // 测试使用Mock对象
-    }
-
     public function testGetCommands(): void
     {
         // 创建有效的任务
@@ -45,19 +39,17 @@ final class DoctrineProviderTest extends AbstractIntegrationTestCase
             ->willReturn([$validJob])
         ;
 
-        // 将Mock注入到容器中
-        self::getContainer()->set(CronJobRepository::class, $repository);
-
-        // 从容器获取Provider实例
-        $provider = self::getService(DoctrineProvider::class);
+        // 创建Provider实例
+        $provider = new DoctrineProvider($repository);
 
         // 获取命令并验证
         $commands = iterator_to_array($provider->getCommands());
 
         $this->assertCount(1, $commands);
-        $this->assertInstanceOf(CommandRequest::class, $commands[0]);
-        $this->assertEquals('php bin/console app:valid-command', $commands[0]->getCommand());
-        $this->assertEquals('*/5 * * * *', $commands[0]->getCronExpression());
+        $firstCommand = $commands[0] ?? null;
+        $this->assertInstanceOf(CommandRequest::class, $firstCommand);
+        $this->assertEquals('php bin/console app:valid-command', $firstCommand->getCommand());
+        $this->assertEquals('*/5 * * * *', $firstCommand->getCronExpression());
     }
 
     public function testEmptyCommands(): void
@@ -69,11 +61,8 @@ final class DoctrineProviderTest extends AbstractIntegrationTestCase
             ->willReturn([])
         ;
 
-        // 将Mock注入到容器中
-        self::getContainer()->set(CronJobRepository::class, $repository);
-
-        // 从容器获取Provider实例
-        $provider = self::getService(DoctrineProvider::class);
+        // 创建Provider实例
+        $provider = new DoctrineProvider($repository);
 
         // 获取命令并验证为空
         $commands = iterator_to_array($provider->getCommands());

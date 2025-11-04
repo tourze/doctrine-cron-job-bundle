@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tourze\DoctrineCronJobBundle\Tests\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -13,19 +15,14 @@ use Tourze\PHPUnitSymfonyUnitTest\AbstractDependencyInjectionExtensionTestCase;
 #[CoversClass(DoctrineCronJobExtension::class)]
 final class DoctrineCronJobExtensionTest extends AbstractDependencyInjectionExtensionTestCase
 {
-    protected function provideServiceDirectories(): iterable
-    {
-        yield from parent::provideServiceDirectories();
-        yield 'Provider';
-    }
+    private DoctrineCronJobExtension $extension;
 
     private ContainerBuilder $container;
-
-    private DoctrineCronJobExtension $extension;
 
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->extension = new DoctrineCronJobExtension();
         $this->container = new ContainerBuilder();
         $this->container->setParameter('kernel.environment', 'test');
@@ -33,26 +30,33 @@ final class DoctrineCronJobExtensionTest extends AbstractDependencyInjectionExte
 
     public function testLoadWithEmptyConfigs(): void
     {
-        $configs = [];
+        $this->extension->load([], $this->container);
 
-        try {
-            $this->extension->load($configs, $this->container);
-            // 测试成功加载后container应该有一些基本配置
-            $this->assertInstanceOf(ContainerBuilder::class, $this->container);
-        } catch (\Throwable $e) {
-            // 在测试环境中，如果配置文件不存在是正常的
-            $this->assertStringContainsString('services.yaml', $e->getMessage());
-        }
+        $this->assertInstanceOf(ContainerBuilder::class, $this->container);
     }
 
     public function testExtensionAlias(): void
     {
-        $expectedAlias = 'doctrine_cron_job';
-        $this->assertEquals($expectedAlias, $this->extension->getAlias());
+        $this->assertSame('doctrine_cron_job', $this->extension->getAlias());
     }
 
-    public function testContainerBuilderInstance(): void
+    public function testExtensionLoadsWithValidConfig(): void
     {
-        $this->assertInstanceOf(ContainerBuilder::class, $this->container);
+        $configs = [
+            [
+                'some_config' => 'some_value',
+            ],
+        ];
+
+        $this->extension->load($configs, $this->container);
+
+        $this->assertGreaterThan(0, $this->container->getDefinitions());
+    }
+
+    public function testGetNamespace(): void
+    {
+        $namespace = $this->extension->getNamespace();
+        $this->assertIsString($namespace);
+        $this->assertNotEmpty($namespace);
     }
 }

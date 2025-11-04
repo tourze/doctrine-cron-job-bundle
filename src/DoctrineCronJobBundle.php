@@ -10,6 +10,9 @@ use Tourze\BundleDependency\BundleDependencyInterface;
 
 class DoctrineCronJobBundle extends Bundle implements BundleDependencyInterface
 {
+    /**
+     * @return array<class-string, array<string, bool>>
+     */
     public static function getBundleDependencies(): array
     {
         return [
