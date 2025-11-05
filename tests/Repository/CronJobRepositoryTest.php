@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Tourze\DoctrineCronJobBundle\Tests\Repository;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\DoctrineCronJobBundle\Entity\CronJob;
@@ -15,138 +11,86 @@ use Tourze\DoctrineCronJobBundle\Repository\CronJobRepository;
 use Tourze\PHPUnitSymfonyKernelTest\AbstractRepositoryTestCase;
 
 /**
+ * @template-extends AbstractRepositoryTestCase<CronJob>
  * @internal
  */
 #[CoversClass(CronJobRepository::class)]
 #[RunTestsInSeparateProcesses]
 final class CronJobRepositoryTest extends AbstractRepositoryTestCase
 {
-    private ?CronJobRepository $repository = null;
-
-    private ?EntityManagerInterface $entityManager = null;
+    private CronJobRepository $repository;
 
     protected function onSetUp(): void
     {
-        $metadata = new ClassMetadata(CronJob::class);
-        $metadata->setIdentifier(['id']);
+        $this->repository = self::getService(CronJobRepository::class);
 
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->entityManager
-            ->method('getClassMetadata')
-            ->with(CronJob::class)
-            ->willReturn($metadata);
-
-        $registry = $this->createMock(ManagerRegistry::class);
-        $registry
-            ->method('getManagerForClass')
-            ->with(CronJob::class)
-            ->willReturn($this->entityManager);
-        $registry
-            ->method('getManager')
-            ->willReturn($this->entityManager);
-
-        $this->repository = new CronJobRepository($registry);
-    }
-
-    protected function getRepository(): ServiceEntityRepository
-    {
-        return $this->repository();
-    }
-
-    public function testSaveShouldPersistEntity(): void
-    {
-        $entity = $this->createCronJob();
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('persist')
-            ->with($entity);
-        $this->entityManager
-            ->expects($this->once())
-            ->method('flush');
-
-        $this->repository()->save($entity, true);
-    }
-
-    public function testSave(): void
-    {
-        $entity = $this->createCronJob();
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('persist')
-            ->with($entity);
-        $this->entityManager
-            ->expects($this->once())
-            ->method('flush');
-
-        $this->repository()->save($entity, true);
-    }
-
-    public function testSaveWithoutImmediateFlush(): void
-    {
-        $entity = $this->createCronJob();
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('persist')
-            ->with($entity);
-        $this->entityManager
-            ->expects($this->never())
-            ->method('flush');
-
-        $this->repository()->save($entity, false);
-    }
-
-    public function testRemoveShouldDeleteEntity(): void
-    {
-        $entity = $this->createCronJob();
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('remove')
-            ->with($entity);
-        $this->entityManager
-            ->expects($this->once())
-            ->method('flush');
-
-        $this->repository()->remove($entity, true);
-    }
-
-    public function testRemove(): void
-    {
-        $entity = $this->createCronJob();
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('remove')
-            ->with($entity);
-        $this->entityManager
-            ->expects($this->once())
-            ->method('flush');
-
-        $this->repository()->remove($entity, true);
-    }
-
-    public function testFindWithExistingIdShouldReturnEntity(): void
-    {
-        $expected = $this->createCronJob();
-
-        $this->entityManager
-            ->expects($this->once())
-            ->method('find')
-            ->with(CronJob::class, 42, null, null)
-            ->willReturn($expected);
-
-        $this->assertSame($expected, $this->repository()->find(42));
-    }
-
-    private function repository(): CronJobRepository
-    {
-        if (null === $this->repository) {
-            throw new \LogicException('CronJobRepository 未初始化');
+        // 为 count 测试创建测试数据
+        $currentTest = $this->name();
+        if ('testCountWithDataFixtureShouldReturnGreaterThanZero' === $currentTest) {
+            $cronJob = $this->createCronJob();
+            self::getEntityManager()->persist($cronJob);
+            self::getEntityManager()->flush();
         }
+    }
 
+    public function testSaveWithFlushShouldPersistEntity(): void
+    {
+        $entity = $this->createCronJob();
+
+        $this->repository->save($entity, true);
+        $id = $entity->getId();
+        $this->assertNotNull($id);
+
+        $result = $this->repository->find($id);
+        $this->assertInstanceOf(CronJob::class, $result);
+    }
+
+    public function testSaveWithoutFlushShouldNotPersistEntity(): void
+    {
+        $entity = $this->createCronJob();
+
+        $this->repository->save($entity, false);
+        $id = $entity->getId();
+        self::getEntityManager()->clear();
+
+        $result = $this->repository->find($id);
+        $this->assertNull($result);
+    }
+
+    public function testRemoveWithFlushShouldDeleteEntity(): void
+    {
+        $entity = $this->createCronJob();
+        $this->repository->save($entity, true);
+
+        $id = $entity->getId();
+        $this->repository->remove($entity, true);
+
+        $result = $this->repository->find($id);
+        $this->assertNull($result);
+    }
+
+    public function testRemoveWithoutFlushShouldNotDeleteEntity(): void
+    {
+        $entity = $this->createCronJob();
+        $this->repository->save($entity, true);
+
+        $id = $entity->getId();
+        $this->repository->remove($entity, false);
+
+        $result = $this->repository->find($id);
+        $this->assertInstanceOf(CronJob::class, $result);
+    }
+
+    protected function createNewEntity(): object
+    {
+        return $this->createCronJob();
+    }
+
+    /**
+     * @return CronJobRepository
+     */
+    protected function getRepository(): CronJobRepository
+    {
         return $this->repository;
     }
 
