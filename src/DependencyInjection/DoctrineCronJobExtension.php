@@ -6,7 +6,7 @@ namespace Tourze\DoctrineCronJobBundle\DependencyInjection;
 
 use Tourze\SymfonyDependencyServiceLoader\AutoExtension;
 
-class DoctrineCronJobExtension extends AutoExtension
+final class DoctrineCronJobExtension extends AutoExtension
 {
     protected function getConfigDir(): string
     {

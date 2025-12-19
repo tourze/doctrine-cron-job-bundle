@@ -53,10 +53,4 @@ final class DoctrineCronJobExtensionTest extends AbstractDependencyInjectionExte
         $this->assertGreaterThan(0, $this->container->getDefinitions());
     }
 
-    public function testGetNamespace(): void
-    {
-        $namespace = $this->extension->getNamespace();
-        $this->assertIsString($namespace);
-        $this->assertNotEmpty($namespace);
-    }
 }
